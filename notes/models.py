@@ -2,6 +2,7 @@ from django.db import models
 import uuid,random
 
 
+
 def generate_isbn():
     a = str(uuid.uuid4())
     isbn1 = a.replace("-", "")

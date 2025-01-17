@@ -6,7 +6,8 @@ urlpatterns1 = [
     path('index/', api_view.as_view(), name='index'),
     path('data/<int:pk>/', api_data.as_view(), name='data'),
     path('generic/', BookList.as_view(), name='user-list'),
-    path('generic1/<int:pk>/', BookList1.as_view(), name='user-list')
+    path('generic1/<int:pk>/', BookList1.as_view(), name='user-list'),
+    path('login/',UserLoginAPIView.as_view(),name='login')
 
 ]
 # user_list = UserViewSet.as_view({'get': 'list'}),

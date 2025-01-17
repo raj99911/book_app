@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate,login
 from django.http import Http404
 from django.shortcuts import render , get_object_or_404
 from rest_framework.views import  APIView
@@ -5,7 +6,13 @@ from rest_framework.response import Response
 from .models import Book,Author
 from .serializer import BookSerializer,AuthorSerializer
 from rest_framework import status,viewsets,generics
-from rest_framework.permissions import IsAdminUser
+from rest_framework.authentication import BasicAuthentication,SessionAuthentication ,TokenAuthentication
+from rest_framework.permissions import IsAdminUser,AllowAny,BasePermission,IsAuthenticated
+from rest_framework.authtoken.models import Token
+from .permission import IsAdminOrReadOnly
+
+
+
 
 # Create your views here.
 class api_view(APIView):
@@ -51,17 +58,38 @@ class api_data(APIView):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
 
 class BookList(generics.ListCreateAPIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    # permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [IsAuthenticated()]
+        else:
+            return  [IsAdminUser()]
 
 class BookList1(generics.RetrieveUpdateDestroyAPIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    # permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
 
 
+class UserLoginAPIView(APIView):
+    permission_classes = [AllowAny]
 
-
+    def post(self,request,*args,**kwargs):
+        user = authenticate(email=request.data['email'],password=request.data['password'])
+        if user:
+            login(request, user)
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'access_token':token.key,
+            },status=201)
+        else:
+            return Response({'error':'Invalid credentials'},status=401)
