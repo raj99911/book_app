@@ -26,12 +26,16 @@ class Book_AuthorSerializer(serializers.ModelSerializer):
         return book
 
     def update(self, instance, validated_data):
-        authors = validated_data.pop('author',[])
+        authors = validated_data.pop('author',None)
         instance = super().update(instance, validated_data)
         if authors is not None:
             instance.author.clear()
             for author_data in authors:
-                author = Author.objects.get(**author_data)
+                author ,created = Author.objects.get_or_create(**author_data)
+                if not created:
+                    for attr,value in validated_data.items():
+                        setattr(author,attr,value)
+                    author.save()
                 instance.author.add(author)
         # instance.save()
         return instance
