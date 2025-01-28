@@ -1,0 +1,1 @@
+[{"model": "notes.author", "pk": 1, "fields": {"name": "Rohan Singh"}}, {"model": "notes.author", "pk": 2, "fields": {"name": "Raj Bhatt"}}, {"model": "notes.book", "pk": 1, "fields": {"title": "Let's Do This", "publish_date": "2007-01-05", "isbn": "92ac5d5fa10342", "author": [1]}}]
